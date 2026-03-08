@@ -1,0 +1,1 @@
+Điểm khác biệt so với game câu cá:Chuyển động liên tục: Chiếc móc sẽ tự động lắc qua lại như một con lắc đồng hồ. Bạn cần canh góc thật chuẩn trước khi nhấn thả.Tính toán hình học: Code này sử dụng hàm lượng giác $sin$ và $cos$ để tính toán vị trí di chuyển của móc theo góc quay.Tốc độ: Game này đòi hỏi phản xạ nhanh hơn một chút so với game câu cá đơn giản
