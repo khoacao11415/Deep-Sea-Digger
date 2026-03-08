@@ -1,0 +1,98 @@
+import pygame
+import math
+import random
+
+# Khởi tạo
+pygame.init()
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Deep Sea Digger")
+
+# Màu sắc
+GOLD = (255, 215, 0)
+GRAY = (100, 100, 100)
+SAND = (194, 178, 128)
+BLACK = (0, 0, 0)
+
+# Cấu hình móc (Hook)
+origin = (WIDTH // 2, 50) # Điểm bắt đầu của dây
+angle = 0
+angle_speed = 0.05
+radius = 40
+extending = False
+returning = False
+length = 40
+max_length = 500
+
+# Vật thể (Vàng)
+targets = []
+for _ in range(8):
+    targets.append({
+        "pos": [random.randint(100, 700), random.randint(200, 500)],
+        "size": random.randint(20, 50),
+        "collected": False
+    })
+
+score = 0
+font = pygame.font.SysFont("Arial", 28)
+clock = pygame.time.Clock()
+
+running = True
+while running:
+    screen.fill(SAND)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not extending and not returning:
+                extending = True
+
+    # Logic xoay và thả móc
+    if not extending and not returning:
+        angle += angle_speed
+        if angle > 1.5 or angle < -1.5: # Giới hạn góc quay
+            angle_speed *= -1
+    
+    elif extending:
+        length += 7
+        if length >= max_length:
+            extending = False
+            returning = True
+    
+    elif returning:
+        length -= 5
+        if length <= 40:
+            returning = False
+            length = 40
+
+    # Tính toán vị trí đầu móc
+    hook_x = origin[0] + length * math.sin(angle)
+    hook_y = origin[1] + length * math.cos(angle)
+
+    # Vẽ dây và đầu móc
+    pygame.draw.line(screen, BLACK, origin, (hook_x, hook_y), 3)
+    pygame.draw.circle(screen, GRAY, (int(hook_x), int(hook_y)), 10)
+
+    # Vẽ và kiểm tra va chạm với vàng
+    for t in targets:
+        if not t["collected"]:
+            pygame.draw.rect(screen, GOLD, (t["pos"][0], t["pos"][1], t["size"], t["size"]))
+            
+            # Kiểm tra va chạm
+            if extending:
+                rect = pygame.Rect(t["pos"][0], t["pos"][1], t["size"], t["size"])
+                if rect.collidepoint(hook_x, hook_y):
+                    t["collected"] = True
+                    extending = False
+                    returning = True
+                    score += 10
+
+    # Hiển thị điểm
+    score_txt = font.render(f"Score: {score}", True, BLACK)
+    screen.blit(score_txt, (20, 20))
+    
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
